@@ -21,9 +21,10 @@ import locateChrome from 'locate-chrome'
 puppeteer.use(StealthPlugin()); //stealth plugin to avoid detection
 
 export async function init_bot() {
-    const executablePath = await new Promise(resolve => locateChrome((arg) => resolve(arg))) || '';
+    // const executablePath = await new Promise(resolve => locateChrome((arg) => resolve(arg))) || '';
     const browser = await puppeteer.launch({
-        executablePath,
+        // executablePath,
+        // executablePath: '/usr/app/bin/google-chrome',
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless: true,
     });
