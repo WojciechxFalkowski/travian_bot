@@ -19,43 +19,49 @@ import * as bot from './core.js'
     while(true) {
 
         try {
-            
+            await bot.run_adventure(page)
+            await bot.update_tasks(page)
             //upgrade all the village resources level by level
             const villagesInfo = await bot.get_villages_info(page);
-
-            let min_level = 16; 
+            // console.log('villagesInfo')
+            // console.log(JSON.parse(JSON.stringify(villagesInfo)))
+            // console.log(villagesInfo[0].resources)
+            // console.log(villagesInfo[0].buildings)
+            let min_level = 10;
 
             for (const villageInfo of villagesInfo) {
-                if (villageInfo.village.name == '02') {
+                // if (villageInfo.village.name == '02') {
                     for (const resource of villageInfo.resources) {
-                        if (resource.level < min_level) {
+                        if (resource.level < min_level && resource.type !== 'crop') {
                             min_level = resource.level;
                         }
                     }
-                }
+                // }
             }
 
-            await bot.launch_raid_from_farm_list(page);
+            // await bot.launch_raid_from_farm_list(page);
 
 
+            console.log('v0')
             for (const villageInfo of villagesInfo) {
-                if (villageInfo.village.name == '02') {
+                // if (villageInfo.village.name == '02') {
                     for (const resource of villageInfo.resources) {
-                        if (resource.level == min_level && resource.status == 'normal') {
+                        if (resource.level == min_level && resource.status == 'normal' && resource.type !== 'crop') {
                             const status = await bot.upgrade_slot(page, resource.href);
                             if (status) break;
                         }
                     }
-                }
+                // }
             }
 
-            await bot.launch_raid_from_farm_list(page);
+            // await bot.launch_raid_from_farm_list(page);
 
 
         } catch(e) {
 
             await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));
             await bot.login(page, username, password);
+            console.log('ERROR')
 
         }
 

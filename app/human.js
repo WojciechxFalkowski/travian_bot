@@ -19,9 +19,7 @@ export async function mmouse(page) {
     }
 }
 
-export async function delay(page) {
-    const min = 2000;
-    const max = 5000;
+export async function delay(page, min = 100, max = 1000) {
     const delay = Math.floor(Math.random() * (max - min)) + min;
     await page.waitForTimeout(delay);
 }
