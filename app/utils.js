@@ -38,7 +38,6 @@ export async function get_village_resource(page, village_url) {
 }
 
 export async function get_village_current_resource(page, village_url) {
-    console.log('get_village_current_resource')
     // Go to resources page
     await page.goto(`${BASE_URL}/dorf1.php${village_url}`);
     await human.mmouse(page);
@@ -62,8 +61,7 @@ export async function get_village_current_resource(page, village_url) {
         const valueElement = await resource.$('.value');
         if (valueElement) {  // Sprawdzamy, czy element istnieje
             let value = await page.evaluate(el => el.innerText, valueElement);
-            value = value.replace(/[\u202D\u202C]/g, '');  // Usuwanie znaków kontroli tekstu
-            console.log(value);
+            value = value.replace(/[\u202D\u202C\s]/g, '');  // Usuwanie znaków kontroli tekstu i spacji
             const resourceName = resourceOrder[i];
             if (resourceName) {
                 recourses[resourceName] = parseInt(value, 10);

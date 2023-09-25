@@ -1,3 +1,5 @@
+#https://github.com/puppeteer/puppeteer/issues/7740
+#https://dev.to/cloudx/how-to-use-puppeteer-inside-a-docker-container-568c
 FROM node:16-alpine3.15
 
 RUN apk add --no-cache \
@@ -18,4 +20,4 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY ./app ./app

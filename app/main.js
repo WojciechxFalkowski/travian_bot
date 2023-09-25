@@ -16,7 +16,7 @@ import * as bot from './core.js'
     await bot.login(page, username, password);
 
 
-    while(true) {
+    while (true) {
 
         try {
             await bot.run_adventure(page)
@@ -31,11 +31,22 @@ import * as bot from './core.js'
 
             for (const villageInfo of villagesInfo) {
                 // if (villageInfo.village.name == '02') {
-                    for (const resource of villageInfo.resources) {
-                        if (resource.level < min_level && resource.type !== 'crop') {
+                for (const resource of villageInfo.resources) {
+                    if (resource.level < min_level) {
+                        //&& resource.type !== 'crop'
+                        // if (resource.type === 'crop' && villageInfo.currentResources.crop >= 200) {
+                        //     console.log("nie ulepszaj kropa")
+                        //     break;
+                        // }
+                        if(resource.type === 'crop' && villageInfo.currentResources.crop < 55){
                             min_level = resource.level;
                         }
+                        else if(resource.type !== 'crop' && villageInfo.currentResources.crop >= 55){
+                            min_level = resource.level;
+                        }
+                        // min_level = resource.level;
                     }
+                }
                 // }
             }
 
@@ -45,19 +56,29 @@ import * as bot from './core.js'
             console.log('v0')
             for (const villageInfo of villagesInfo) {
                 // if (villageInfo.village.name == '02') {
-                    for (const resource of villageInfo.resources) {
-                        if (resource.level == min_level && resource.status == 'normal' && resource.type !== 'crop') {
+                for (const resource of villageInfo.resources) {
+                    if (resource.level == min_level && resource.status == 'normal') {
+                        //&& resource.type !== 'crop'
+                        // if (resource.type === 'crop' && villageInfo.currentResources.crop >= 200) {
+                        //     console.log("nie ulepszaj kropa")
+                        //     break;
+                        // }
+                        if(resource.type === 'crop' && villageInfo.currentResources.crop < 55){
                             const status = await bot.upgrade_slot(page, resource.href);
-                            if (status) break;
-                        }
+                            if (status) break;                        }
+                        else if(resource.type !== 'crop' && villageInfo.currentResources.crop >= 55){
+                            const status = await bot.upgrade_slot(page, resource.href);
+                            if (status) break;                        }
+
                     }
+                }
                 // }
             }
 
             // await bot.launch_raid_from_farm_list(page);
 
 
-        } catch(e) {
+        } catch (e) {
 
             await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));
             await bot.login(page, username, password);
