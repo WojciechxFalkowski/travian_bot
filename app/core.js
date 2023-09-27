@@ -15,7 +15,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import dotenv from 'dotenv'; //env variables
 import winston from 'winston'; //logger
-import { BASE_URL } from './bot.js'
+import { BASE_URL, IS_AVAILABLE_ATTACK_OASIS } from './bot.js'
 import locateChrome from 'locate-chrome'
 
 puppeteer.use(StealthPlugin()); //stealth plugin to avoid detection
@@ -39,7 +39,7 @@ export async function init_bot() {
         username: username,
         password: password,
     }
-    
+
     return bot;
 }
 
@@ -77,7 +77,7 @@ export async function get_villages_info(page) {
             resources: await get_village_resource(page, village.href),
             buildings: await get_village_buildings(page, village.href),
         });
-        
+
     }
 
     console.log('accountInfo')
@@ -88,7 +88,7 @@ export async function get_villages_info(page) {
 
 
     return accountInfo;
-    
+
 }
 
 export async function upgrade_slot(page, slot_url) {
@@ -138,4 +138,90 @@ export async function update_tasks(page) {
 
 export async function run_adventure(page) {
     await get_adventure(page)
+}
+
+// export async function attack_oasises(page) {
+//     console.log('attack_oasises', IS_AVAILABLE_ATTACK_OASIS)
+//     await human.mmouse(page);
+//     await human.delay(page);
+//     if(!IS_AVAILABLE_ATTACK_OASIS){
+//         console.log("Nie można atakować oaz!")
+//         return
+//     }
+//     console.log("Można atakować oazy!")
+//     const oasisesToAttack = [{x: '-110', y:'-40' }]
+//     const T1_AMOUNT = '3'
+//     await page.goto(`${BASE_URL}/build.php?id=39&gid=16&tt=2`);
+//     const tropsContainer = await page.waitForSelector('#troops');
+//     const t1 = await tropsContainer.$('input[name="troop[t1]"]');
+//     await human.type(t1, T1_AMOUNT, page);
+//     const coordinatesContainer = await page.$('.coordinatesInput');
+//     console.log('v5')
+//     const xCoordinate = await coordinatesContainer.$('input[name="x"]');
+//     await human.type(xCoordinate, oasisesToAttack[0].x, page);
+
+//     const yCoordinate = await coordinatesContainer.$('input[name="y"]');
+//     await human.type(yCoordinate, oasisesToAttack[0].y, page);
+
+//     const optionsContainer = await page.$('.option');
+//     const plunderOption = await optionsContainer.$('input[value="4"]');
+//     plunderOption.click()
+//     await human.mmouse(page);
+//     await human.delay(page);
+// }
+export async function attack_oasises(page) {
+    await human.mmouse(page);
+    await human.delay(page);
+    if (!IS_AVAILABLE_ATTACK_OASIS) {
+        console.log("Nie można atakować oaz!")
+        return
+    }
+    console.log("Można atakować oazy!")
+    const oasisesToAttack = [{ x: '-110', y: '-40' }]
+
+    for (const oasis of oasisesToAttack) {
+        await page.goto(`${BASE_URL}/position_details.php?x=${oasis.x}&y=${oasis.y}`);
+        const troopInfoContainer = await page.waitForSelector('#troop_info');
+        const tropTypes = await troopInfoContainer.$$('table > tbody > tr')
+        const isEmptyOasis = await tropTypes[0].evaluate(x => x.textContent) === 'brak'
+
+        if (!isEmptyOasis) {
+            console.log(`Oaza [x: ${oasis.x}, y: ${oasis.y}] nie jest pusta!`)
+            return
+        }
+
+        const optionsContainer = await page.$('.detailImage > .options');
+        const attackOasisButton = (await optionsContainer.$$('.option'))[2]
+        await attackOasisButton.click()
+        await human.delay(page);
+
+        /**
+         * Set army
+         */
+        const T1_AMOUNT = '3'
+        const tropsContainer = await page.waitForSelector('#troops');
+        const t1 = await tropsContainer.$('input[name="troop[t1]"]');
+        await human.type(t1, T1_AMOUNT, page);
+
+        //It is selected by default
+        // const coordinatesContainer = await page.$('.coordinatesInput');
+        // const xCoordinate = await coordinatesContainer.$('input[name="x"]');
+        // await human.type(xCoordinate, oasisesToAttack[0].x, page);
+
+        // const yCoordinate = await coordinatesContainer.$('input[name="y"]');
+        // await human.type(yCoordinate, oasisesToAttack[0].y, page);
+
+        // const optionsContainer = await page.$('.option');
+        // const plunderOption = await optionsContainer.$('input[value="4"]');
+        // plunderOption.click()
+        const sendArmyButton = await page.$('button[type="submit"]')
+        await sendArmyButton.click()
+
+        const actionButtonsContainer = await page.waitForSelector('#rallyPointButtonsContainer')
+        const actionButtons = await actionButtonsContainer.$$('button')
+        const confirmSendArmyButton = await actionButtons[actionButtons.length - 1]
+        await confirmSendArmyButton.click()
+        await human.mmouse(page);
+        await human.delay(page);
+    }
 }
