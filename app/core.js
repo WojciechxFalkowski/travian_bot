@@ -26,7 +26,7 @@ export async function init_bot() {
         // executablePath,
         // executablePath: '/usr/app/bin/google-chrome',
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: false,
+        headless: true,
     });
 
     const page = await browser.newPage();
