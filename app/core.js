@@ -26,7 +26,7 @@ export async function init_bot() {
         // executablePath,
         // executablePath: '/usr/app/bin/google-chrome',
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: true,
+        headless: false,
     });
 
     const page = await browser.newPage();
@@ -199,6 +199,12 @@ export async function attack_oasises(page) {
          * Set army
          */
         const T1_AMOUNT = '3'
+        const t1AmountContainer = await page.$('input[name="troop[t1]"] + a');
+        const t1Amount = (await t1AmountContainer.evaluate(el => el.textContent)).replace(/[\u202D\u202C\s]/g, '');
+        const isEnoughT1 = Number(T1_AMOUNT) <= Number(t1Amount)
+        if(!isEnoughT1){
+            return
+        }
         const tropsContainer = await page.waitForSelector('#troops');
         const t1 = await tropsContainer.$('input[name="troop[t1]"]');
         await human.type(t1, T1_AMOUNT, page);
