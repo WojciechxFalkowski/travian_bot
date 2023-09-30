@@ -15,7 +15,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import dotenv from 'dotenv'; //env variables
 import winston from 'winston'; //logger
-import { BASE_URL, IS_AVAILABLE_ATTACK_OASIS, BOT_URL } from './bot.js'
+import { BASE_URL, IS_AVAILABLE_ATTACK_OASIS, BACKEND_NEST_URL } from './bot.js'
 import locateChrome from 'locate-chrome'
 
 puppeteer.use(StealthPlugin()); //stealth plugin to avoid detection
@@ -250,13 +250,10 @@ export async function attack_oasises(page) {
 }
 
 export async function buildQueue(page, villageUrl) {
-	console.log('buildQueue')
-	console.log(BOT_URL)
-	console.log(`${BOT_URL}/building-queue/server`)
-	console.log(JSON.stringify({ "server": BASE_URL }))
-	const queueBuldings = await fetch(`${BOT_URL}/building-queue/server`, { method: 'POST', body: JSON.stringify({ "server": BASE_URL }) }).then(res => res.json())
-	console.log('queueBuldings')
-	console.log(queueBuldings)
+	if(!BACKEND_NEST_URL){
+		return
+	}
+	const queueBuldings = await fetch(`${BACKEND_NEST_URL}/building-queue/server`, { method: 'POST', body: JSON.stringify({ "server": BASE_URL }) }).then(res => res.json())
 	// const queueBuldings = [
 	// {
 	// 	id: 23,
@@ -349,5 +346,5 @@ const buildBuilding = async (page, buildBuildingButton, queueBuild) => {
 		buildingName: queueBuild.buildingName,
 		level: queueBuild.level
 	}
-	await fetch(`${BOT_URL}/building-queue`, { method: 'DELETE', body: JSON.stringify({ deleteBody }) })
+	await fetch(`${BACKEND_NEST_URL}/building-queue`, { method: 'DELETE', body: JSON.stringify({ deleteBody }) })
 }
