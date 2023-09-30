@@ -20,58 +20,63 @@ import * as bot from './core.js'
     while (true) {
 
         try {
+
             await bot.run_adventure(page)
             await bot.update_tasks(page)
             await bot.attack_oasises(page)
             
             //upgrade all the village resources level by level
             const villagesInfo = await bot.get_villages_info(page);
-            let min_level = 10;
+            // console.log(villagesInfo[0].buildings)
+            // let min_level = 10;
+
+            // for (const villageInfo of villagesInfo) {
+            //     for (const resource of villageInfo.resources) {
+            //         if (resource.level < min_level) {
+            //             if (resource.type === 'crop' && villageInfo.currentResources.crop < CROP_MIN) {
+            //                 min_level = resource.level;
+            //             }
+            //             else if (resource.type !== 'crop' && villageInfo.currentResources.crop >= CROP_MIN) {
+            //                 min_level = resource.level;
+            //             }
+            //             // min_level = resource.level;
+            //         }
+            //     }
+            // }
+
+            await bot.launch_raid_from_farm_list(page);
 
             for (const villageInfo of villagesInfo) {
-                for (const resource of villageInfo.resources) {
-                    if (resource.level < min_level) {
-                        if (resource.type === 'crop' && villageInfo.currentResources.crop < CROP_MIN) {
-                            min_level = resource.level;
-                        }
-                        else if (resource.type !== 'crop' && villageInfo.currentResources.crop >= CROP_MIN) {
-                            min_level = resource.level;
-                        }
-                        // min_level = resource.level;
-                    }
-                }
+                await bot.buildQueue(page, villageInfo.village.href)
             }
 
-            // await bot.launch_raid_from_farm_list(page);
-
-
-            for (const villageInfo of villagesInfo) {
-                if (villageInfo.currentResources.availableCrop <= MIN_AVAILABLE_CROP) {
-                    const cropResources = villageInfo.resources.filter(resource => resource.type === 'crop')
-                    let cropMinLevel = 10
-                    for (const resource of cropResources) {
-                        if (resource.level < cropMinLevel) {
-                            cropMinLevel = resource.level;
-                        }
-                    }
-                    const minCrop = villageInfo.resources.find(resource => resource.level === cropMinLevel)
-                    await bot.upgrade_slot(page, minCrop.href);
-                }
-                else {
-                    for (const resource of villageInfo.resources) {
-                        if (resource.level == min_level && resource.status == 'normal') {
-                            if (resource.type === 'crop' && villageInfo.currentResources.crop < CROP_MIN) {
-                                const status = await bot.upgrade_slot(page, resource.href);
-                                if (status) break;
-                            }
-                            else if (resource.type !== 'crop' && villageInfo.currentResources.crop >= CROP_MIN) {
-                                const status = await bot.upgrade_slot(page, resource.href);
-                                if (status) break;
-                            }
-                        }
-                    }
-                }
-            }
+            // for (const villageInfo of villagesInfo) {
+            //     if (villageInfo.currentResources.availableCrop <= MIN_AVAILABLE_CROP) {
+            //         const cropResources = villageInfo.resources.filter(resource => resource.type === 'crop')
+            //         let cropMinLevel = 10
+            //         for (const resource of cropResources) {
+            //             if (resource.level < cropMinLevel) {
+            //                 cropMinLevel = resource.level;
+            //             }
+            //         }
+            //         const minCrop = villageInfo.resources.find(resource => resource.level === cropMinLevel)
+            //         await bot.upgrade_slot(page, minCrop.href);
+            //     }
+            //     else {
+            //         for (const resource of villageInfo.resources) {
+            //             if (resource.level == min_level && resource.status == 'normal') {
+            //                 if (resource.type === 'crop' && villageInfo.currentResources.crop < CROP_MIN) {
+            //                     const status = await bot.upgrade_slot(page, resource.href);
+            //                     if (status) break;
+            //                 }
+            //                 else if (resource.type !== 'crop' && villageInfo.currentResources.crop >= CROP_MIN) {
+            //                     const status = await bot.upgrade_slot(page, resource.href);
+            //                     if (status) break;
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             // await bot.launch_raid_from_farm_list(page);
 
