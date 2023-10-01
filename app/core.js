@@ -17,7 +17,8 @@ import dotenv from 'dotenv'; //env variables
 import winston from 'winston'; //logger
 import { BASE_URL, IS_AVAILABLE_ATTACK_OASIS, BACKEND_NEST_URL } from './bot.js'
 import locateChrome from 'locate-chrome'
-import { runStableArmy } from './army.js'
+import { buildArmy } from './army.js'
+
 puppeteer.use(StealthPlugin()); //stealth plugin to avoid detection
 
 export async function init_bot() {
@@ -157,7 +158,11 @@ export async function run_adventure(page) {
 }
 
 export async function run_stable_army(page) {
-	await runStableArmy(page)
+	//barracks
+	await buildArmy(page, '/build.php?d=20&gid=19', 'troopt2', 2, 6)
+
+	//stable
+	await buildArmy(page, '/build.php?d=21&gid=20', 'troopt4', 1, 5)
 }
 
 // export async function attack_oasises(page) {

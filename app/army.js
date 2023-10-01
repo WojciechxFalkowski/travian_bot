@@ -1,31 +1,36 @@
 import { BASE_URL } from './bot.js'
 import * as human from './human.js'; //human behavior
 
-export async function runStableArmy(page) {
+export async function buildArmy(page, url, unitTroopType, minUnitQuantityInQueue, maxUnitQuantityInQueue) {
     if (BASE_URL !== "https://ts5.x1.europe.travian.com") {
         return
     }
-    const stableUnitsInProducton = await checkStableQueue(page)
-    if (!stableUnitsInProducton || stableUnitsInProducton.length > 0) {
+    const stableUnitsInProducton = await checkUnitQueue(page, url)
+    console.log(stableUnitsInProducton)
+    if (!Array.isArray(stableUnitsInProducton)) {
         return
     }
 
     const unitsQuantityInQueue = stableUnitsInProducton.reduce((prevValue, unit) => prevValue + unit.quantity, 0)
 
-    if (unitsQuantityInQueue && unitsQuantityInQueue > 5) {
+    if (unitsQuantityInQueue && unitsQuantityInQueue >= maxUnitQuantityInQueue) {
         return
     }
-    await page.goto(`${BASE_URL}/build.php?id=21&gid=20`);
+    await page.goto(`${BASE_URL}${url}`);
     await human.mmouse(page);
     await human.delay(page);
 
+    await buildUnit(page, unitTroopType, minUnitQuantityInQueue)
+}
+
+export const buildUnit = async (page, unitTroopType, minUnitQuantityInQueue) => {
     const nonFavouriteTroops = await page.waitForSelector('#nonFavouriteTroops');
 
-    const troopt4Container = await nonFavouriteTroops.$('div.troopt4');
-    if (!troopt4Container) {
+    const troopTypeContainer = await nonFavouriteTroops.$(`div.${unitTroopType}`);
+    if (!troopTypeContainer) {
         return
     }
-    const ctaContainer = await troopt4Container.$('div.cta')
+    const ctaContainer = await troopTypeContainer.$('div.cta')
     if (!ctaContainer) {
         return
     }
@@ -34,25 +39,27 @@ export async function runStableArmy(page) {
     if (!availableQuantityContainer) {
         return
     }
-    const availableQuantity = await availableQuantityContainer.evaluate(x => x.textContent)
-    await human.click(availableQuantityContainer, page);
-    // const inputContainer = await ctaContainer.$('input[name="t4"]')
-    // await human.type(inputContainer, Number(availableQuantity), page)
-    const formContainer = await page.$('form[action="/build.php?id=21&gid=20"]')
+    const availableQuantity = Number(await availableQuantityContainer.evaluate(x => x.textContent))
+    // await human.click(availableQuantityContainer, page);
+    const quantity = availableQuantity > minUnitQuantityInQueue ? minUnitQuantityInQueue : availableQuantity
+    const inputContainer = await ctaContainer.$('input')
+    await human.type(inputContainer, quantity.toString(), page)
+    const formContainer = await page.$('form[name="snd"]')
     const submitButtonContainer = await formContainer.$('#s1')
+
     await human.click(submitButtonContainer, page);
 }
 
-export const checkStableQueue = async (page) => {
+export const checkUnitQueue = async (page, url) => {
     await human.mmouse(page);
     await human.delay(page);
-    await page.goto(`${BASE_URL}/build.php?id=21&gid=20`);
+    await page.goto(`${BASE_URL}${url}`);
 
 
     const buildContainer = await page.waitForSelector('#build');
     const titleDuringTraining = await buildContainer.$('h4.round.spacer')
     if (!titleDuringTraining) {
-        return
+        return []
     }
     const tableUnderProgressArmy = await buildContainer.$('table.under_progress')
     const tBodyUnderProgressArmy = await tableUnderProgressArmy.$('tbody')
@@ -61,6 +68,7 @@ export const checkStableQueue = async (page) => {
 
     for (const [index, unit] of trUnderProgressArmyUnits.entries()) {
         const trClass = await unit.evaluate(el => el.getAttribute('class'));
+
         if (!trClass) {
             const descContainer = await unit.$('td.desc')
             const imgContainer = await descContainer.$('img.unit')
@@ -70,9 +78,9 @@ export const checkStableQueue = async (page) => {
             if (unitClass.includes('unit')) {
                 unitType = unitClass.replace('unit ', "")
             }
+
             const textContent = await descContainer.evaluate(el => el.textContent);
             const unitQuantity = Number(textContent.replace(unitName, "").replace(/\s/g, ''))
-            // console.log('vv')
             unitsInProduction.push({
                 index: index,
                 name: unitName,
