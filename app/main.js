@@ -23,7 +23,7 @@ import * as bot from './core.js'
             await bot.run_stable_army(page)
             await bot.run_adventure(page)
             await bot.update_tasks(page)
-            await bot.attack_oasises(page)
+            // await bot.attack_oasises(page)
             const villagesInfo = await bot.get_villages_info(page);
 
 

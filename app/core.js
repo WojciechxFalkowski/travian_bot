@@ -17,7 +17,7 @@ import dotenv from 'dotenv'; //env variables
 import winston from 'winston'; //logger
 import { BASE_URL, IS_AVAILABLE_ATTACK_OASIS, BACKEND_NEST_URL } from './bot.js'
 import locateChrome from 'locate-chrome'
-
+import { runStableArmy } from './army.js'
 puppeteer.use(StealthPlugin()); //stealth plugin to avoid detection
 
 export async function init_bot() {
@@ -157,36 +157,7 @@ export async function run_adventure(page) {
 }
 
 export async function run_stable_army(page) {
-	if (BASE_URL !== "https://ts5.x1.europe.travian.com") {
-		return
-	}
-	console.log('run_stable_army')
-	await page.goto(`${BASE_URL}/build.php?id=21&gid=20`);
-	await human.mmouse(page);
-	await human.delay(page);
-
-	const nonFavouriteTroops = await page.waitForSelector('#nonFavouriteTroops');
-
-	const troopt4Container = await nonFavouriteTroops.$('div.troopt4');
-	if (!troopt4Container) {
-		return
-	}
-	const ctaContainer = await troopt4Container.$('div.cta')
-	if (!ctaContainer) {
-		return
-	}
-
-	const availableQuantityContainer = await ctaContainer.$('a[href="#"]')
-	if (!availableQuantityContainer) {
-		return
-	}
-	const availableQuantity = await availableQuantityContainer.evaluate(x => x.textContent)
-	await human.click(availableQuantityContainer, page);
-	// const inputContainer = await ctaContainer.$('input[name="t4"]')
-	// await human.type(inputContainer, Number(availableQuantity), page)
-	const formContainer = await page.$('form[action="/build.php?id=21&gid=20"]')
-	const submitButtonContainer = await formContainer.$('#s1')
-	await human.click(submitButtonContainer, page);
+	runStableArmy(page)
 }
 
 // export async function attack_oasises(page) {
