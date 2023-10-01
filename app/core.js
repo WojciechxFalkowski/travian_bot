@@ -26,7 +26,7 @@ export async function init_bot() {
 		// executablePath,
 		// executablePath: '/usr/app/bin/google-chrome',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		headless: true,
+		headless: false,
 	});
 
 	const page = await browser.newPage();
@@ -157,7 +157,7 @@ export async function run_adventure(page) {
 }
 
 export async function run_stable_army(page) {
-	runStableArmy(page)
+	await runStableArmy(page)
 }
 
 // export async function attack_oasises(page) {

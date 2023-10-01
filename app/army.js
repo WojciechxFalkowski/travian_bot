@@ -5,7 +5,6 @@ export async function runStableArmy(page) {
     if (BASE_URL !== "https://ts5.x1.europe.travian.com") {
         return
     }
-    console.log('run_stable_army')
     const stableUnitsInProducton = await checkStableQueue(page)
     if (!stableUnitsInProducton || stableUnitsInProducton.length > 0) {
         return
@@ -58,7 +57,6 @@ export const checkStableQueue = async (page) => {
     const tableUnderProgressArmy = await buildContainer.$('table.under_progress')
     const tBodyUnderProgressArmy = await tableUnderProgressArmy.$('tbody')
     const trUnderProgressArmyUnits = await tBodyUnderProgressArmy.$$('tr')
-    console.log(trUnderProgressArmyUnits)
     const unitsInProduction = [];
 
     for (const [index, unit] of trUnderProgressArmyUnits.entries()) {
