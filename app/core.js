@@ -101,8 +101,6 @@ export async function get_villages_info(page) {
 
 	}
 
-	console.log('accountInfo')
-	console.log(accountInfo[0].currentResources)
 	await human.mmouse(page);
 	await human.delay(page);
 
@@ -141,7 +139,12 @@ export async function launch_raid_from_farm_list(page) {
 	await human.mmouse(page);
 	await human.delay(page);
 
-	const buttonRaid = await page.waitForSelector('button[value="Wyślij"]', { timeout: 3000 });
+	const startAllButtons = await page.waitForSelector('div.startAllButtons')
+	const isStartAllButtonsDisabled = (await startAllButtons.evaluate(el => el.getAttribute('class'))).includes('disabled')
+	if (!isStartAllButtonsDisabled) {
+		return
+	}
+	const buttonRaid = await page.waitForSelector('button[value="Wyślij"]');
 
 	await human.mmouse(page);
 	await human.click(buttonRaid, page);
@@ -157,7 +160,7 @@ export async function run_adventure(page) {
 	await get_adventure(page)
 }
 
-export async function run_stable_army(page) {
+export async function run_army(page) {
 	//barracks
 	await buildArmy(page, '/build.php?d=20&gid=19', 'troopt2', 2, 6)
 
@@ -256,6 +259,38 @@ export async function attack_oasises(page) {
 		await human.delay(page);
 	}
 }
+
+// export async function buildResource(page, villageInfo) {
+// 	const CROP_MIN = 300
+//     const MIN_AVAILABLE_CROP = 5
+
+// 	if (villageInfo.currentResources.availableCrop <= MIN_AVAILABLE_CROP) {
+// 		const cropResources = villageInfo.resources.filter(resource => resource.type === 'crop')
+// 		let cropMinLevel = 10
+// 		for (const resource of cropResources) {
+// 			if (resource.level < cropMinLevel) {
+// 				cropMinLevel = resource.level;
+// 			}
+// 		}
+
+// 		const minCrop = villageInfo.resources.find(resource => resource.level === cropMinLevel)
+// 		await upgrade_slot(page, minCrop.href);
+// 	}
+// 	else {
+// 		for (const resource of villageInfo.resources) {
+// 			if (resource.level == villageInfo.minResourceLevel && resource.status == 'normal') {
+// 				if (resource.type === 'crop' && villageInfo.currentResources.crop < CROP_MIN) {
+// 					const status = await upgrade_slot(page, resource.href);
+// 					if (status) break;
+// 				}
+// 				else if (resource.type !== 'crop' && villageInfo.currentResources.crop >= CROP_MIN) {
+// 					const status = await upgrade_slot(page, resource.href);
+// 					if (status) break;
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 export async function buildQueue(page, villageUrl) {
 	if (!BACKEND_NEST_URL) {
