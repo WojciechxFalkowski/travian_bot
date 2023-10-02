@@ -27,7 +27,7 @@ export async function init_bot() {
 		// executablePath,
 		// executablePath: '/usr/app/bin/google-chrome',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		headless: true,
+		headless: false,
 	});
 
 	const page = await browser.newPage();
@@ -141,11 +141,10 @@ export async function launch_raid_from_farm_list(page) {
 
 	const startAllButtons = await page.waitForSelector('div.startAllButtons')
 	const isStartAllButtonsDisabled = (await startAllButtons.evaluate(el => el.getAttribute('class'))).includes('disabled')
-	if (!isStartAllButtonsDisabled) {
+	if (isStartAllButtonsDisabled) {
 		return
 	}
-	const buttonRaid = await page.waitForSelector('button[value="Wyślij"]');
-
+	const buttonRaid = await page.$('button[value="Wyślij"]');
 	await human.mmouse(page);
 	await human.click(buttonRaid, page);
 	await human.delay(page);
