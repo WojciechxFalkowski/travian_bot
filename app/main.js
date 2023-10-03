@@ -24,7 +24,7 @@ import * as bot from './core.js'
     while (true) {
         const currentTime = new Date();
         try {
-            // await bot.run_army(page)
+            await bot.run_army(page)
             await bot.run_adventure(page)
             await bot.update_tasks(page)
             // await bot.attack_oasises(page)
