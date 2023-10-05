@@ -27,7 +27,7 @@ export async function init_bot() {
 		// executablePath,
 		// executablePath: '/usr/app/bin/google-chrome',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		headless: true,
+		headless: false,
 	});
 
 	const page = await browser.newPage();
@@ -135,10 +135,28 @@ export async function upgrade_slot(page, slot_url) {
 }
 
 export async function launch_raid_from_farm_list(page) {
+	console.log('launch_raid_from_farm_list')
+	await page.goto(`${BASE_URL}/dorf2.php`);
+	const slot = await page.waitForSelector('div[data-aid="39"]')
+	console.log(slot)
+	const isSlotEmpty = (await slot.evaluate(el => el.getAttribute('data-name')))
+	console.log('isSlotEmpty')
+	console.log(isSlotEmpty)
+
+
 	await page.goto(`${BASE_URL}/build.php?id=39&gid=16&tt=99`);
 	await human.mmouse(page);
 	await human.delay(page);
 
+
+	const scrollingContainer = await page.waitForSelector('div.scrollingContainer')
+	const lootingListOption = await scrollingContainer.$("div.favorKey99")
+	if(!lootingListOption){
+		console.log("Nie wybudowano miejsca zbiorki")
+		console.log(lootingListOption)
+		return
+	}
+	//scrollingContainer
 	const startAllButtons = await page.waitForSelector('div.startAllButtons')
 	const isStartAllButtonsDisabled = (await startAllButtons.evaluate(el => el.getAttribute('class'))).includes('disabled')
 	if (isStartAllButtonsDisabled) {

@@ -124,7 +124,7 @@ export async function get_villages(page) {
 
     // Get the villages
     const villageContainer = await page.waitForSelector('div.villageList');
-    const villageList = await villageContainer.$$('div.listEntry');
+    const villageList = [(await villageContainer.$$('div.listEntry'))[0]];
 
     for (const village of villageList) {
         const villageTagA = await village.$('a');
