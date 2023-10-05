@@ -24,11 +24,12 @@ import * as bot from './core.js'
     while (true) {
         const currentTime = new Date();
         try {
-            // await bot.run_army(page)
-            // await bot.run_adventure(page)
-            // await bot.update_tasks(page)
             // await bot.attack_oasises(page)
             const villagesInfo = await bot.get_villages_info(page);
+            await bot.run_army(page)
+            await bot.run_adventure(page)
+            await bot.update_tasks(page)
+
             console.log(villagesInfo[0].village.href)
             if (lastExecutionTime === null || isMoreThanTenMinutesOld(currentTime, lastExecutionTime)) {
                 // Aktualizuj czas ostatniego uruchomienia funkcji
